@@ -1,0 +1,14 @@
+{
+  "name": "epubs",
+  "version": "1.0.0",
+  "description": "ePub meta information extraction",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "epub": "^0.2.0"
+  }
+}
