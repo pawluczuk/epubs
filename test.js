@@ -1,5 +1,6 @@
 const Extract = require('./index');
-const extract = new Extract('../test_epubs');
+const epubDir = process.argv.length > 2 ? process.argv[2] : '../test_epubs';
+const extract = new Extract(epubDir);
 
 extract.extractAllFiles()
     .then(data => {
