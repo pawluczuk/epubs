@@ -40,7 +40,8 @@ class Extract {
         const metadata = this.formatMetadata(epub.metadata);
         
         if (!metadata) {
-            const message = 'No metadata to be saved';
+            const message  = 'No metadata to be saved'
+                , err = message;
             return reject({
                 file,
                 err,
@@ -91,8 +92,7 @@ class Extract {
                 return /.+\.epub$/i.test(file);
             })
             .map(file => {
-                let promise =  this.extractMetadata(file);
-                return promise.catch(e => e);
+                return this.extractMetadata(file).catch(e => e);
             });
     }
 
@@ -104,7 +104,7 @@ class Extract {
                 }
 
                 const promises = this.getAllMetadata(files);
-
+                console.log(promises)
                 return Promise.all(promises)
                     .then(data => {
                         resolve(data);

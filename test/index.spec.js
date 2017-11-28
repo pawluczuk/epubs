@@ -56,6 +56,42 @@ describe('extract epubs module', () => {
         });
     });
 
+    describe('saveMetadata', () => {
+        let formatMetadata, writeMetadata, resolve, reject;
+        before(() => {
+            formatMetadata = sinon.stub(extractModule, 'formatMetadata');
+            writeMetadata = sinon.stub(extractModule, 'writeMetadata');
+            resolve = sinon.stub();
+            reject = sinon.stub();
+        });
+        afterEach(() => {
+            [formatMetadata, writeMetadata, resolve, reject].forEach(stub => stub.reset());
+        });
+        after(() => {
+            [formatMetadata, writeMetadata, resolve, reject].forEach(stub => { if (stub.restore) stub.restore()});
+        });
+        it('should work', () => {
+            formatMetadata.returns({some:'data'});
+            writeMetadata.yields(null);
+            extractModule.saveMetadata({}, 'file', resolve, reject);
+            assert(resolve.calledWith({file:'file'}));
+            assert(reject.notCalled);
+        });
+        it('should fail if no metadata for file', () => {
+            formatMetadata.returns(null);
+            extractModule.saveMetadata({}, 'file', resolve, reject);
+            assert(resolve.notCalled);
+            assert(reject.calledWith({file:'file', err: 'No metadata to be saved', message:'No metadata to be saved'}));
+        });
+        it('should fail on write fail', () => {
+            formatMetadata.returns({some:'data'});
+            writeMetadata.yields('writeMetadata err');
+            extractModule.saveMetadata({}, 'file', resolve, reject);
+            assert(resolve.notCalled);
+            assert(reject.calledWith({file:'file', err: 'writeMetadata err', message:'Error saving metadata'}));
+        });
+    });
+
     describe('formatMetadata', () => {
         it('should work', () => {
             let data = {
@@ -154,6 +190,21 @@ describe('extract epubs module', () => {
             }, err => {
                 assert.equal(err, 'readdir err');
                 readdir.restore();
+                done();
+            });
+        });
+        it('should fail on file promises fail', done => {
+            let getAllMetadata = sinon.stub(extractModule, 'getAllMetadata')
+            getAllMetadata.returns([
+                new Promise((resolve, reject) => {
+                    reject('file promise fail');
+                })
+            ]);
+            let promise = extractModule.extractAllFiles();
+            promise.then(files => {
+            }, err => {
+                assert.equal(err, 'file promise fail');
+                getAllMetadata.restore();
                 done();
             });
         });
