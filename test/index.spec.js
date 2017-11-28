@@ -120,4 +120,36 @@ describe('extract epubs module', () => {
             }, err => {});
         });
     });
+
+    describe('extractAllFiles', () => {
+        let saveMetadata;
+        before(() => {
+            saveMetadata = sinon.stub(extractModule, 'saveMetadata');
+        });
+        afterEach(() => {
+            saveMetadata.reset();
+        });
+        after(() => {
+            saveMetadata.restore();
+        });
+        it('should work', done => {
+            saveMetadata.yields(null);
+            let promise = extractModule.extractAllFiles('1.epub');
+            promise.then(files => {
+                assert.deepEqual(files, [{file: path.join(path.resolve('test/testData'), '1.epub')}]);
+                done();
+            }, err => {});
+        });
+        it('should fail on bad dir', done => {
+            let readdir = sinon.stub(fs, 'readdir');
+            readdir.yields('readdir err');
+            let promise = extractModule.extractAllFiles('1.epub');
+            promise.then(files => {
+            }, err => {
+                assert.equal(err, 'readdir err');
+                readdir.restore();
+                done();
+            });
+        });
+    });
 });
