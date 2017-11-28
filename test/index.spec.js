@@ -134,18 +134,22 @@ describe('extract epubs module', () => {
         after(() => {
             writeMetadata.restore();
         });
-        it('should work', done => {
+        it('should work and get info on fails', done => {
             writeMetadata.yields(null);
-            let promise = extractModule.extractAllFiles('1.epub');
+            let promise = extractModule.extractAllFiles();
             promise.then(files => {
-                assert.deepEqual(files, [{file: path.join(path.resolve('test/testData'), '1.epub')}]);
+                assert.equal(files.length, 2);
+                assert.deepEqual(files[0], {file: path.join(path.resolve('test/testData'), '1.epub')});
+                assert.deepEqual(files[1].file, path.join(path.resolve('test/testData'), '2.epub'));
+                assert.equal(files[1].message, 'Error while parsing ePub file');
+                assert.equal(files[1].err, 'Error: Invalid/missing file');
                 done();
             }, err => {});
         });
         it('should fail on bad dir', done => {
             let readdir = sinon.stub(fs, 'readdir');
             readdir.yields('readdir err');
-            let promise = extractModule.extractAllFiles('1.epub');
+            let promise = extractModule.extractAllFiles();
             promise.then(files => {
             }, err => {
                 assert.equal(err, 'readdir err');
