@@ -1,5 +1,6 @@
-const extract = require('./index');
-
+const Extract = require('./index');
+const extract = new Extract('../test_epubs');
+console.log(extract)
 // test
 let dir = '../test_epubs';
 extract.extractAllFiles(dir)
