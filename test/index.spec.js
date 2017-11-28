@@ -85,16 +85,17 @@ describe('extract epubs module', () => {
     describe('getAllMetadata', () => {
         let extractMetadata;
         before(() => {
-            extractMetadata = sinon.stub(extractModule, 'extractMetadata').returns('extractedData');
+            extractMetadata = sinon.stub(extractModule, 'extractMetadata').resolves('abc');
         });
         after(() => {
             extractMetadata.restore();
         });
         it('should work and filter files without .epub extension', () => {
             let data = ['some_book.epub', '1.epub', 'system_file', 'file.epub.old', 'bookepub', '.epub']
-                , expectedData = ['extractedData', 'extractedData'];
-            assert.deepEqual(extractModule.getAllMetadata(data), expectedData);
-            assert.deepEqual(extractMetadata.callCount, 2);
+                , promises = extractModule.getAllMetadata(data);
+            assert.equal(promises.length, 2);
+            assert(promises[0] instanceof Promise);
+            assert.equal(extractMetadata.callCount, 2);
         });
         it('should work with empty array', () => {
             assert.deepEqual(extractModule.getAllMetadata([]), []);

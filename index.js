@@ -91,7 +91,10 @@ class Extract {
                 return /.+\.epub$/i.test(file);
             })
             .map(file => {
-                return this.extractMetadata(file);
+                console.log(file)
+                let promise =  this.extractMetadata(file);
+                console.log(promise);
+                return promise.catch(e => e);
             });
     }
 
