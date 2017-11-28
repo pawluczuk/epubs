@@ -35,3 +35,13 @@ Otherwise, it will try to read directory `../test_epubs`.
 To run all the tests, run `npm run test`.
 
 To run all the test with coverage, run `npm run testcov`. It will create `coverage` folder with stats and print coverage summary after successful run.
+
+
+````
+=============================== Coverage summary ===============================
+Statements   : 100% ( 45/45 )
+Branches     : 100% ( 15/15 )
+Functions    : 100% ( 7/7 )
+Lines        : 100% ( 44/44 )
+================================================================================
+````
