@@ -9,7 +9,7 @@ extract.extractAllFiles()
         console.log(`Successfully parsed ${data.length - faultFiles.length} out of ${data.length} files.`);
         console.log('Faulty files information:');
         faultFiles.forEach(file => {
-            console.log(`Error occured: ${file.message} for file: ${file.file}. Error details ${file.err}`)
+            console.log(`${file.file}: ${file.message}\n\t${file.err}`)
         });
     })
     .catch(err => {
