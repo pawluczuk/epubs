@@ -7,9 +7,9 @@ class Extract {
         this.dir = dir;
     }
 
-    saveMetadata(dir, file, metadata, cb) {
+    saveMetadata(file, metadata, cb) {
         let folderName = file.replace(/.epub$/i, ''),
-            folderPath = path.resolve(dir, folderName);
+            folderPath = path.resolve(this.dir, folderName);
 
         fs.mkdir(folderPath, err => {
             if (err) {
@@ -35,9 +35,9 @@ class Extract {
         return formattedMetada;
     };
 
-    extractMetadata(dir, file) {
+    extractMetadata(file) {
         return new Promise((resolve, reject) => {
-            file = path.resolve(dir, file);
+            file = path.resolve(this.dir, file);
             let epub = new EPub(file);
 
             epub
@@ -62,7 +62,7 @@ class Extract {
                         });
                     }
 
-                    this.saveMetadata(dir, file, metadata, err => {
+                    this.saveMetadata(file, metadata, err => {
                         if (err) {
                             let message = 'Error saving metadata';
                             return reject({
@@ -89,24 +89,24 @@ class Extract {
         });
     };
 
-    mapDirectoryFiles(dir, files) {
+    mapDirectoryFiles(files) {
         return files
             .filter(file => {
                 return /.*\.epub$/i.test(file);
             })
             .map(file => {
-                return this.extractMetadata(dir, file);
+                return this.extractMetadata(file);
             });
     };
 
-    extractAllFiles(dir) {
+    extractAllFiles() {
         return new Promise((resolve, reject) => {
-            fs.readdir(dir, (err, files) => {
+            fs.readdir(this.dir, (err, files) => {
                 if (err) {
                     return reject(err);
                 }
 
-                let promises = this.mapDirectoryFiles(dir, files);
+                let promises = this.mapDirectoryFiles(files);
 
                 return Promise.all(promises)
                     .then(data => {
