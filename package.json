@@ -7,7 +7,7 @@
     "test": "mocha --recursive",
     "testcov": "istanbul cover --report html _mocha -- -R spec --recursive && istanbul check-coverage"
   },
-  "author": "",
+  "author": "Monika Pawluczuk",
   "license": "ISC",
   "dependencies": {
     "epub": "0.2.0",

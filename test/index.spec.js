@@ -1,15 +1,12 @@
 const sinon = require('sinon')
     , assert = require('assert');
-//var handleError = Dealertrack.__get__('handleError');
+
 describe('extract epubs module', () => {
-    let Extract, extractModule, EPub, fs, path;
-    before(() => {
-        path = require('path');
-        Extract = require('..');
-        extractModule = new Extract(path.resolve('test/testData'));
-        fs = require('fs');
-        EPub = require('epub');
-    });
+    const path = require('path')
+        , fs = require('fs')
+        , Extract = require('..')
+        , extractModule = new Extract(path.resolve('test/testData'));
+
     describe('saveMetadata', () => { 
         let writeFile, mkdir;
         before(() => {
@@ -27,10 +24,14 @@ describe('extract epubs module', () => {
         it('should work', function(done) {
             mkdir.yields(null);
             writeFile.yields(null);
+            let expectedDir = path.resolve('test/testData/some_file')
+                , expectedFilePath = path.resolve('test/testData/some_file/index.json')
+                , expectedMetadata = JSON.stringify({meta:'data'},null,2)
+                ;
             extractModule.saveMetadata('some_file.epub', {meta:'data'}, err => {
                 assert(!err, 'err');
-                assert(mkdir.calledWith(path.resolve('test/testData/some_file')), 'writeFile called with bad args');
-                assert(writeFile.calledWith(path.resolve('test/testData/some_file/index.json'), JSON.stringify({meta:'data'},null,2)), 'writeFile called with bad args');
+                assert(mkdir.calledWith(expectedDir), 'writeFile called with bad args');
+                assert(writeFile.calledWith(expectedFilePath, expectedMetadata), 'writeFile called with bad args');
                 done();
             });
         });
@@ -81,8 +82,8 @@ describe('extract epubs module', () => {
         });
     });
 
-    describe('mapDirectoryFiles', () => {
-        let extractMetadata, sandbox;
+    describe('getAllMetadata', () => {
+        let extractMetadata;
         before(() => {
             extractMetadata = sinon.stub(extractModule, 'extractMetadata').returns('extractedData');
         });
@@ -90,13 +91,13 @@ describe('extract epubs module', () => {
             extractMetadata.restore();
         });
         it('should work and filter files without .epub extension', () => {
-            let data = ['some_book.epub', '1.epub', 'system_file']
+            let data = ['some_book.epub', '1.epub', 'system_file', 'file.epub.old', 'bookepub', '.epub']
                 , expectedData = ['extractedData', 'extractedData'];
-            assert.deepEqual(extractModule.mapDirectoryFiles(data), expectedData);
+            assert.deepEqual(extractModule.getAllMetadata(data), expectedData);
             assert.deepEqual(extractMetadata.callCount, 2);
         });
         it('should work with empty array', () => {
-            assert.deepEqual(extractModule.mapDirectoryFiles([]), []);
+            assert.deepEqual(extractModule.getAllMetadata([]), []);
         });
     });
 

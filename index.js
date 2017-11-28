@@ -8,19 +8,19 @@ class Extract {
     }
 
     saveMetadata(file, metadata, cb) {
-        let folderName = file.replace(/.epub$/i, ''),
+        const folderName = file.replace(/\.epub$/i, ''),
             folderPath = path.resolve(this.dir, folderName);
 
         fs.mkdir(folderPath, err => {
             if (err) {
                 return cb(err);
             }
-            let indexPath = path.resolve(folderPath, 'index.json');
+            const indexPath = path.resolve(folderPath, 'index.json');
             fs.writeFile(indexPath, JSON.stringify(metadata, null, 2), err => {
                 if (err) {
                     return cb(err);
                 }
-                cb(null);
+                return cb(null);
             });
         });
     }
@@ -29,21 +29,22 @@ class Extract {
         if (!metadata || !metadata.title || !metadata.creator) {
             return undefined;
         }
-        let formattedMetada = {};
-        formattedMetada.title = `${metadata.creator}: ${metadata.title}`;
-        formattedMetada.contributors = [metadata.creator];
-        return formattedMetada;
+
+        return {
+            title: `${metadata.creator}: ${metadata.title}`,
+            contributors: [metadata.creator]
+        };
     };
 
     extractMetadata(file) {
         return new Promise((resolve, reject) => {
             file = path.resolve(this.dir, file);
-            let epub = new EPub(file);
+            const epub = new EPub(file);
 
             epub
-                .on('end', (err) => {
+                .on('end', err => {
                     if (err) {
-                        let message = 'Error parsing ePub file';
+                        const message = 'Error parsing ePub file';
                         return reject({
                             file,
                             err,
@@ -51,10 +52,10 @@ class Extract {
                         });
                     }
 
-                    let metadata = this.formatMetadata(epub.metadata);
+                    const metadata = this.formatMetadata(epub.metadata);
 
                     if (!metadata) {
-                        let message = 'No metadata to be saved';
+                        const message = 'No metadata to be saved';
                         return reject({
                             file,
                             err,
@@ -64,7 +65,7 @@ class Extract {
 
                     this.saveMetadata(file, metadata, err => {
                         if (err) {
-                            let message = 'Error saving metadata';
+                            const message = 'Error saving metadata';
                             return reject({
                                 file,
                                 err,
@@ -76,8 +77,8 @@ class Extract {
                         });
                     });
                 })
-                .on('error', (err) => {
-                    let message = 'Error while parsing ePub file';
+                .on('error', err => {
+                    const message = 'Error while parsing ePub file';
                     return reject({
                         file,
                         err,
@@ -89,10 +90,10 @@ class Extract {
         });
     };
 
-    mapDirectoryFiles(files) {
+    getAllMetadata(files) {
         return files
             .filter(file => {
-                return /.*\.epub$/i.test(file);
+                return /.+\.epub$/i.test(file);
             })
             .map(file => {
                 return this.extractMetadata(file);
@@ -106,7 +107,7 @@ class Extract {
                     return reject(err);
                 }
 
-                let promises = this.mapDirectoryFiles(files);
+                const promises = this.getAllMetadata(files);
 
                 return Promise.all(promises)
                     .then(data => {
@@ -117,6 +118,6 @@ class Extract {
             });
         });
     }
-};
+}
 
 module.exports = Extract;
