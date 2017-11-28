@@ -3,9 +3,7 @@ const EPub = require('epub')
     , path = require('path')
     ;
 
-let extract = {
-    files: []
-};
+let extract = {};
 
 extract.saveMetadata = function saveMetadata(dir, file, metadata, cb) {
     let folderName = file.replace(/.epub$/i, '')
@@ -16,7 +14,7 @@ extract.saveMetadata = function saveMetadata(dir, file, metadata, cb) {
         if (err) {
             return cb(err);
         }
-        let indexPath = path.resolve(folderPath, 'index.json')
+        let indexPath = path.resolve(folderPath, 'index.json');
         fs.writeFile(indexPath, JSON.stringify(metadata, null, 2), err => {
             if (err) {
                 return cb(err);
